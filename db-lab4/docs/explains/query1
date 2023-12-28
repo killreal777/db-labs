@@ -1,0 +1,15 @@
+ucheb=> explain analyze select оценки."КОД", ведомости."ИД"
+from "Н_ОЦЕНКИ" оценки
+join "Н_ВЕДОМОСТИ" ведомости on (оценки."КОД" = ведомости."ОЦЕНКА")
+where (оценки."ПРИМЕЧАНИЕ" < 'неявка') and (ведомости."ДАТА" < to_date('YYYY-MM-DD', '2010-06-18'));
+                                                                  QUERY PLAN
+-----------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=0.30..8.37 rows=1 width=9) (actual time=0.009..0.010 rows=0 loops=1)
+   Join Filter: (("оценки"."КОД")::text = ("ведомости"."ОЦЕНКА")::text)
+   ->  Index Scan using "ВЕД_ДАТА_I" on "Н_ВЕДОМОСТИ" "ведомости"  (cost=0.30..7.20 rows=1 width=10) (actual time=0.008..0.008 rows=0 loops=1)
+         Index Cond: ("ДАТА" < to_date('YYYY-MM-DD'::text, '2010-06-18'::text))
+   ->  Seq Scan on "Н_ОЦЕНКИ" "оценки"  (cost=0.00..1.11 rows=4 width=5) (never executed)
+         Filter: (("ПРИМЕЧАНИЕ")::text < 'неявка'::text)
+ Planning Time: 0.382 ms
+ Execution Time: 0.038 ms
+(8 строк)

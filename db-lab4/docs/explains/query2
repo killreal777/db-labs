@@ -1,0 +1,29 @@
+ucheb=> explain analyze select люди."ИМЯ", обучения."ЧЛВК_ИД", ученики."ИД"
+from "Н_ЛЮДИ" люди
+left join "Н_ОБУЧЕНИЯ" обучения on (обучения."ЧЛВК_ИД" = люди."ИД")
+left join "Н_УЧЕНИКИ" ученики on (обучения."ЧЛВК_ИД" = ученики."ЧЛВК_ИД")
+where (люди."ФАМИЛИЯ" < 'Иванов') and (обучения."НЗК" < '933232') and (ученики."ИД" > 39);
+                                                                    QUERY PLAN
+---------------------------------------------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=322.27..1290.96 rows=4903 width=21) (actual time=3.732..11.036 rows=4409 loops=1)
+   Hash Cond: ("ученики"."ЧЛВК_ИД" = "обучения"."ЧЛВК_ИД")
+   ->  Seq Scan on "Н_УЧЕНИКИ" "ученики"  (cost=0.00..832.39 rows=23272 width=8) (actual time=0.010..4.013 rows=23272 loops=1)
+         Filter: ("ИД" > 39)
+         Rows Removed by Filter: 39
+   ->  Hash  (cost=309.21..309.21 rows=1045 width=21) (actual time=3.701..3.703 rows=1011 loops=1)
+         Buckets: 2048  Batches: 1  Memory Usage: 71kB
+         ->  Hash Join  (cost=180.65..309.21 rows=1045 width=21) (actual time=1.309..3.488 rows=1011 loops=1)
+               Hash Cond: ("обучения"."ЧЛВК_ИД" = "люди"."ИД")
+               ->  Seq Scan on "Н_ОБУЧЕНИЯ" "обучения"  (cost=0.00..119.76 rows=3346 width=4) (actual time=0.008..1.616 rows=3347 loops=1)
+                     Filter: (("НЗК")::text < '933232'::text)
+                     Rows Removed by Filter: 1674
+               ->  Hash  (cost=160.66..160.66 rows=1599 width=17) (actual time=1.279..1.280 rows=1573 loops=1)
+                     Buckets: 2048  Batches: 1  Memory Usage: 95kB
+                     ->  Bitmap Heap Scan on "Н_ЛЮДИ" "люди"  (cost=40.67..160.66 rows=1599 width=17) (actual time=0.545..0.984 rows=1573 loops=1)
+                           Recheck Cond: (("ФАМИЛИЯ")::text < 'Иванов'::text)
+                           Heap Blocks: exact=99
+                           ->  Bitmap Index Scan on "ФАМ_ЛЮД"  (cost=0.00..40.27 rows=1599 width=0) (actual time=0.529..0.529 rows=1573 loops=1)
+                                 Index Cond: (("ФАМИЛИЯ")::text < 'Иванов'::text)
+ Planning Time: 16.415 ms
+ Execution Time: 11.349 ms
+(21 строка)
